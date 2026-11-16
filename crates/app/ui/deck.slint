@@ -6088,6 +6088,7 @@ component NoteFxRow inherits HorizontalLayout {
     property <int> arp-mode: Controls.value(Controls.resolve("[Instrument1]", "arp_mode"), Controls.tick);
     property <int> arp-rate: Controls.value(Controls.resolve("[Instrument1]", "arp_rate"), Controls.tick);
     property <int> arp-octaves: Controls.value(Controls.resolve("[Instrument1]", "arp_octaves"), Controls.tick);
+    property <int> hold-index: Controls.resolve("[Instrument1]", "arp_hold");
     spacing: 4px;
     alignment: end;
     NoteFxPill {
@@ -6113,6 +6114,14 @@ component NoteFxRow inherits HorizontalLayout {
         toggled => { Controls.toggle(arp-index); }
         opened => { arp-menu.show(); }
         arp-menu := ArpMenu { x: parent.width - self.width; y: - self.height - 4px; }
+    }
+    // HOLD: notes keep sounding after their keys are let go (the
+    // arpeggiator's hold while ARP is on).
+    NoteFxPill {
+        name: "HOLD";
+        on: Controls.value(hold-index, Controls.tick) > 0;
+        toggled => { Controls.toggle(hold-index); }
+        opened => { Controls.toggle(hold-index); }
     }
 }
 
@@ -6236,7 +6245,7 @@ component KnobTabs inherits HorizontalLayout {
         border-width: 1px;
         border-color: on ? Theme.n-3a3a3d : transparent;
         background: on ? Theme.n-141416 : tta.has-hover ? Theme.control : transparent;
-        label := Text { text: "PAGE " + (p + 1); color: on ? Theme.text : Theme.text-dim; font-size: 10px; font-weight: 600; letter-spacing: 0.6px; }
+        label := Text { text: InstrumentsUi.page-names[p] != "" ? InstrumentsUi.page-names[p] : "PAGE " + (p + 1); color: on ? Theme.text : Theme.text-dim; font-size: 10px; font-weight: 600; letter-spacing: 0.6px; }
         tta := TouchArea { mouse-cursor: pointer; clicked => { root.picked(min(p, max(0, root.pages - root.shown))); } }
     }
 }
@@ -6325,7 +6334,7 @@ component InstrumentRack inherits Rectangle {
                 VerticalLayout {
                     padding: 6px;
                     spacing: 2px;
-                    if root.pages > 1: KnobTabs {
+                    if root.pages > 1 || InstrumentsUi.page-names[0] != "": KnobTabs {
                         pages: root.pages;
                         shown: root.shown;
                         page: root.page;

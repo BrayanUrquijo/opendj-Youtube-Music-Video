@@ -35,6 +35,7 @@ pub mod key;
 pub mod keynet;
 mod keyshift;
 pub mod kits;
+pub mod latch;
 pub mod link;
 pub mod live_wave;
 pub mod loader;
@@ -365,6 +366,14 @@ impl AudioEngine {
         self.plugins
             .as_ref()
             .map_or_else(Vec::new, |p| p.instrument_parameters())
+    }
+
+    /// A name for each page of 8 of the playing instrument's knobs, from
+    /// its maker ("" for none); empty while none plays or it names none.
+    pub fn instrument_pages(&self) -> Vec<String> {
+        self.plugins
+            .as_ref()
+            .map_or_else(Vec::new, |p| p.instrument_pages())
     }
 
     /// Every parameter of the playing instrument, (id, name), to pick
